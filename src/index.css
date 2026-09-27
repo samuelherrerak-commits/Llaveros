@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+  --font-cormorant: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-script: "Great Vibes", cursive;
+  --font-hand: "Caveat", cursive;
+  --font-display: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  --font-grotesk: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-round: "Fredoka", ui-rounded, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-neutral-950 font-sans text-white antialiased;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(255 255 255 / 0.2);
+  }
+}
+
+@utility screen-dvh {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@utility safe-px {
+  padding-left: max(1.5rem, env(safe-area-inset-left));
+  padding-right: max(1.5rem, env(safe-area-inset-right));
+}
+
+@utility safe-pb {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+@utility safe-pt {
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+}
+
+@utility no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

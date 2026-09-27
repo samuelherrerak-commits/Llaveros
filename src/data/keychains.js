@@ -1,12 +1,12 @@
 /**
  * Fuente de datos local (modo 100% estático).
  *
- * Se usa cuando VITE_GAS_URL NO está definida: los mensajes viven aquí,
- * dentro del build, y no hace falta ningún backend. Además, el post-build
- * genera una página real `dist/id/<slug>/index.html` por cada entrada.
+ * Se usa con VITE_DATA_SOURCE=local: los mensajes viven aquí, dentro del
+ * build, y no hace falta ningún backend. Además, el post-build genera una
+ * página real `dist/id/<slug>/index.html` por cada entrada.
  *
- * Si VITE_GAS_URL está definida, los datos salen del Google Sheet y este
- * archivo solo sirve para desarrollo.
+ * Por defecto (VITE_DATA_SOURCE=sheets) los datos salen del Google Sheet y
+ * este archivo solo alimenta la lista de demo en desarrollo.
  *
  * Mismo formato que las columnas del Sheet:
  *   slug → { template_id, sender, receiver, message, extra_data }

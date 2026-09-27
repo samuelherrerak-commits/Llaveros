@@ -6,6 +6,10 @@ const COPY = {
     title: 'Este llavero aún no tiene mensaje',
     body: 'Puede que todavía se esté preparando. Vuelve a acercarlo en un rato.',
   },
+  UNAUTHORIZED: {
+    title: 'No pudimos verificar este llavero',
+    body: 'El portal no está autorizado para leer los mensajes. Avísanos para revisarlo.',
+  },
   MISSING_SLUG: {
     title: 'Enlace incompleto',
     body: 'Parece que el enlace del llavero no está bien grabado.',
@@ -18,7 +22,7 @@ const COPY = {
 
 export default function ErrorScreen({ error }) {
   const copy = COPY[error?.code] ?? COPY.default
-  const canRetry = !['NOT_FOUND', 'MISSING_SLUG'].includes(error?.code)
+  const canRetry = !['NOT_FOUND', 'MISSING_SLUG', 'UNAUTHORIZED'].includes(error?.code)
 
   return (
     <motion.main

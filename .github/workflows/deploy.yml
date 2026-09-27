@@ -2,8 +2,10 @@
 # Activar en: Settings → Pages → Source: "GitHub Actions".
 #
 # Variables opcionales (Settings → Secrets and variables → Actions → Variables):
-#   VITE_GAS_URL  URL de la Web App de Apps Script (vacía = datos locales)
-#   VITE_BASE     "/" si usas dominio propio; por defecto "/<nombre-del-repo>/"
+#   VITE_GAS_URL      URL /exec de Apps Script (por defecto la de src/config.js)
+#   VITE_API_TOKEN    token que valida Code.gs (por defecto el de src/config.js)
+#   VITE_DATA_SOURCE  "sheets" (por defecto) o "local"
+#   VITE_BASE         "/" si usas dominio propio; por defecto "/<nombre-del-repo>/"
 name: Deploy static site
 
 on:
@@ -33,6 +35,8 @@ jobs:
       - run: npm run build
         env:
           VITE_GAS_URL: ${{ vars.VITE_GAS_URL }}
+          VITE_API_TOKEN: ${{ vars.VITE_API_TOKEN }}
+          VITE_DATA_SOURCE: ${{ vars.VITE_DATA_SOURCE }}
           VITE_BASE: ${{ vars.VITE_BASE || format('/{0}/', github.event.repository.name) }}
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -21,6 +21,7 @@ midominio.com/id/juan-maria   ← URL grabada en el chip NFC
 ├── scripts/
 │   └── postbuild.js         # Genera 404.html + dist/id/<slug>/index.html
 ├── src/
+│   ├── config.js            # URL de Apps Script, token y fuente de datos
 │   ├── main.jsx             # BrowserRouter + MotionConfig
 │   ├── App.jsx              # Rutas: /, /id/:slug, /:slug
 │   ├── index.css            # Tailwind v4 + fuentes + utilidades (safe-area, dvh)
@@ -55,10 +56,20 @@ npm run preview
 
 | Modo | Cómo se activa | Cuándo usarlo |
 | --- | --- | --- |
-| **Local (estático puro)** | `VITE_GAS_URL` vacía | Pocos llaveros; editas `src/data/keychains.js` y vuelves a publicar. Sin dependencias externas. |
-| **Google Sheets** | `VITE_GAS_URL=https://script.google.com/macros/s/…/exec` | Agregar llaveros sin volver a publicar: solo añades una fila al Sheet. |
+| **Google Sheets** (por defecto) | `VITE_DATA_SOURCE=sheets` | Agregar llaveros sin volver a publicar: solo añades una fila al Sheet. |
+| **Local (estático puro)** | `VITE_DATA_SOURCE=local` | Editas `src/data/keychains.js` y vuelves a publicar. Sin dependencias externas. |
 
 En ambos casos el frontend sigue siendo un sitio estático: el Sheet se consulta desde el navegador.
+
+### Configuración del portal (`src/config.js`)
+
+| Variable | Valor por defecto |
+| --- | --- |
+| `VITE_GAS_URL` | `https://script.google.com/macros/s/AKfycbwAH8xudqE0PKLshLnBI1Hcp0G8u8jv5iHmHY0gP7XaKIsTpyXVbwuA0vbCiuliQ2f2/exec` |
+| `VITE_API_TOKEN` | `Llaverosv1` (debe coincidir con `API_TOKEN` de `Code.gs`) |
+| `VITE_DATA_SOURCE` | `sheets` |
+
+Los valores por defecto ya vienen en el código; las variables de entorno (`.env` o variables del repo en CI) solo hacen falta para cambiarlos.
 
 ### Columnas del Sheet
 
@@ -85,7 +96,13 @@ En ambos casos el frontend sigue siendo un sitio estático: el Sheet se consulta
 4. **Implementar → Nueva implementación → Aplicación web**
    - Ejecutar como: **Yo**
    - Quién tiene acceso: **Cualquier persona**
-5. Copia la URL `/exec` en `.env` como `VITE_GAS_URL` (ver `.env.example`).
+5. Si la URL `/exec` cambia, actualízala en `src/config.js` o en `VITE_GAS_URL`.
+
+### Token
+
+Cada petición debe llevar `?token=Llaverosv1`; si falta o no coincide, `Code.gs` responde `{ ok: false, error: "UNAUTHORIZED" }`. El token se define en `API_TOKEN` dentro de `Code.gs`, o sin tocar el código en *Configuración del proyecto → Propiedades del script → `API_TOKEN`*.
+
+> El token viaja en el JS del sitio estático, así que es visible para quien inspeccione la página. Sirve para frenar accesos directos o scraping casual al endpoint, no como secreto fuerte. Para rotarlo, cambia `API_TOKEN` en Apps Script y `VITE_API_TOKEN` en el portal, y vuelve a publicar ambos.
 
 > **CORS:** Apps Script no permite fijar headers, pero una Web App pública responde con `Access-Control-Allow-Origin: *`. El servicio hace un GET *simple* (sin headers custom) para evitar el preflight `OPTIONS` y, si aun así falla, reintenta por **JSONP** (`?callback=`), que `Code.gs` soporta. Las respuestas se cachean 5 min en `CacheService` y en `sessionStorage`.
 
@@ -95,11 +112,11 @@ En ambos casos el frontend sigue siendo un sitio estático: el Sheet se consulta
 
 El `postbuild` deja `dist/` listo para cualquier hosting **sin necesidad de rewrites**:
 
-- `dist/id/<slug>/index.html` para cada llavero de `src/data/keychains.js` → responden 200 directamente.
+- En modo local, `dist/id/<slug>/index.html` para cada llavero de `src/data/keychains.js` → responden 200 directamente.
 - `dist/404.html` (copia de la app) → los slugs que vienen del Sheet también abren en GitHub Pages / Netlify / Cloudflare Pages.
 - `public/_redirects` (Netlify) y `vercel.json` como refuerzo SPA.
 
-**GitHub Pages (automático):** activa *Settings → Pages → Source: GitHub Actions*. Cada push a `main` publica. Variables opcionales del repo: `VITE_GAS_URL` y `VITE_BASE` (`/` si usas dominio propio; por defecto `/<repo>/`).
+**GitHub Pages (automático):** activa *Settings → Pages → Source: GitHub Actions*. Cada push a `main` publica. Variables opcionales del repo: `VITE_GAS_URL`, `VITE_API_TOKEN`, `VITE_DATA_SOURCE` y `VITE_BASE` (`/` si usas dominio propio; por defecto `/<repo>/`).
 
 **Manual:** `npm run build` y sube `dist/` a Netlify Drop, Cloudflare Pages, Vercel, etc. Si publicas en una subcarpeta: `VITE_BASE=/subcarpeta/ npm run build`.
 

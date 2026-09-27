@@ -7,12 +7,20 @@
  *    slug | template_id | sender | receiver | message | extra_data
  *
  *  Endpoint:
- *    GET  https://script.google.com/macros/s/<DEPLOY_ID>/exec?slug=juan-maria
- *    GET  ...?slug=juan-maria&callback=miFuncion   (modo JSONP opcional)
+ *    GET  https://script.google.com/macros/s/<DEPLOY_ID>/exec?slug=juan-maria&token=Llaverosv1
+ *    GET  ...?slug=juan-maria&token=Llaverosv1&callback=miFuncion   (modo JSONP opcional)
  *
  *  Respuesta:
  *    { ok: true,  data: { slug, template_id, sender, receiver, message, extra_data } }
- *    { ok: false, error: "NOT_FOUND" | "MISSING_SLUG" | "INTERNAL_ERROR", message }
+ *    { ok: false, error: "UNAUTHORIZED" | "NOT_FOUND" | "MISSING_SLUG" | "INTERNAL_ERROR", message }
+ *
+ *  ── Sobre el token ─────────────────────────────────────────
+ *  Toda petición debe incluir `token`. Se envía como parámetro de la URL
+ *  (no como header) para que el GET siga siendo "simple" y no dispare
+ *  preflight CORS. El token viaja dentro del JS del portal estático, así que
+ *  es visible para quien inspeccione el sitio: frena el scraping casual y los
+ *  accesos directos al endpoint, pero no es un secreto fuerte. Para rotarlo,
+ *  cambia API_TOKEN (o la propiedad del script) y VITE_API_TOKEN del portal.
  *
  *  ── Sobre CORS ──────────────────────────────────────────────
  *  ContentService NO permite fijar headers HTTP arbitrarios. Aun así,
@@ -38,6 +46,12 @@ var SHEET_NAME = 'Llaveros';
  */
 var SPREADSHEET_ID = '';
 
+/**
+ * Token de acceso. Se puede sobreescribir sin tocar el código desde
+ * Configuración del proyecto → Propiedades del script → API_TOKEN.
+ */
+var API_TOKEN = 'Llaverosv1';
+
 /** Tiempo de cache en segundos (CacheService, máx 21600 = 6 h). */
 var CACHE_TTL_SECONDS = 300;
 
@@ -52,6 +66,10 @@ function doGet(e) {
   var callback = sanitizeCallback_(params.callback);
 
   try {
+    if (!isAuthorized_(params.token)) {
+      return respond_({ ok: false, error: 'UNAUTHORIZED', message: 'Token inválido o ausente.' }, callback);
+    }
+
     var slug = normalizeSlug_(params.slug);
 
     if (!slug) {
@@ -125,6 +143,23 @@ function getSheet_() {
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
+
+function getApiToken_() {
+  var fromProps = PropertiesService.getScriptProperties().getProperty('API_TOKEN');
+  return fromProps || API_TOKEN;
+}
+
+/** Comparación en tiempo constante para no filtrar el token por timing. */
+function isAuthorized_(token) {
+  var expected = getApiToken_();
+  var given = String(token || '');
+  if (given.length !== expected.length) return false;
+  var diff = 0;
+  for (var i = 0; i < expected.length; i++) {
+    diff |= expected.charCodeAt(i) ^ given.charCodeAt(i);
+  }
+  return diff === 0;
+}
 
 function cell_(row, i) {
   return i > -1 && row[i] != null ? String(row[i]).trim() : '';
@@ -210,6 +245,9 @@ function setupSheet() {
 
 /** Prueba rápida desde el editor: Ver → Registros. */
 function testDoGet() {
-  var out = doGet({ parameter: { slug: 'juan-maria' } });
-  console.log(out.getContent());
+  var ok = doGet({ parameter: { slug: 'juan-maria', token: getApiToken_() } });
+  console.log(ok.getContent());
+
+  var denied = doGet({ parameter: { slug: 'juan-maria', token: 'incorrecto' } });
+  console.log(denied.getContent()); // → UNAUTHORIZED
 }

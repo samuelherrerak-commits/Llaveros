@@ -1,6 +1,5 @@
 import { KEYCHAINS } from '../data/keychains.js'
-
-const GAS_URL = import.meta.env.VITE_GAS_URL?.trim()
+import { API_TOKEN, DATA_SOURCE, GAS_URL } from '../config.js'
 const TIMEOUT_MS = 12000
 const CACHE_PREFIX = 'llavero:'
 
@@ -8,7 +7,7 @@ export class KeychainError extends Error {
   constructor(code, message) {
     super(message)
     this.name = 'KeychainError'
-    this.code = code // 'NOT_FOUND' | 'MISSING_SLUG' | 'NETWORK' | 'TIMEOUT' | 'INTERNAL_ERROR'
+    this.code = code // 'UNAUTHORIZED' | 'NOT_FOUND' | 'MISSING_SLUG' | 'NETWORK' | 'TIMEOUT' | 'INTERNAL_ERROR'
   }
 }
 
@@ -28,7 +27,7 @@ export function getKeychain(slug) {
 
   if (inflight.has(key)) return inflight.get(key)
 
-  const promise = (GAS_URL ? fetchFromAppsScript(key) : fetchLocal(key))
+  const promise = (DATA_SOURCE === 'sheets' ? fetchFromAppsScript(key) : fetchLocal(key))
     .then((data) => {
       const record = normalizeRecord(data)
       writeCache(key, record)
@@ -45,6 +44,8 @@ export function getKeychain(slug) {
 async function fetchFromAppsScript(slug) {
   const url = new URL(GAS_URL)
   url.searchParams.set('slug', slug)
+  // El token va como query param (no header) para no provocar preflight CORS.
+  url.searchParams.set('token', API_TOKEN)
 
   let payload
   try {

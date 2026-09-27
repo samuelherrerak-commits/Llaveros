@@ -49,4 +49,12 @@ export const KEYCHAINS = {
     message: '¡Te quiero más que ayer y menos que mañana!',
     extra_data: '',
   },
+  'noche-vesper': {
+    template_id: 6,
+    sender: 'Diego',
+    receiver: 'Valeria',
+    message:
+      'Eres la calma de mis noches y la razón de cada amanecer. Gracias por elegirme, todos los días.',
+    extra_data: '{"since":"2023-02-14"}',
+  },
 }

@@ -39,7 +39,8 @@ midominio.com/id/juan-maria   ← URL grabada en el chip NFC
 │       ├── FloralBloom.jsx        # 2
 │       ├── PolaroidMemory.jsx     # 3
 │       ├── NeonCosmic.jsx         # 4
-│       └── PlayfulHeart.jsx       # 5
+│       ├── PlayfulHeart.jsx       # 5
+│       └── VesperNight.jsx        # 6 (+ vesper-night.css)
 └── .github/workflows/deploy.yml   # Deploy automático a GitHub Pages
 ```
 
@@ -87,6 +88,10 @@ Los valores por defecto ya vienen en el código; las variables de entorno (`.env
 | `photo` | 3 | URL de la foto de la polaroid |
 | `caption` | 3 | Texto bajo la foto |
 | `date` | 3 | Fecha en el reverso |
+| `video` | 6 | URL mp4 de fondo (por defecto, el clip nocturno) |
+| `since` | 6 | Fecha `YYYY-MM-DD` de inicio → muestra "N días juntos" |
+| `title` | 6 | Segunda línea del titular (por defecto "todo mi amor.") |
+| `stat1`, `stat2` | 6 | Textos de las dos primeras estadísticas |
 
 ## Configurar Apps Script
 
@@ -129,5 +134,6 @@ El `postbuild` deja `dist/` listo para cualquier hosting **sin necesidad de rewr
 | 3 | Polaroid Memory | Papel, Caveat manuscrita | Foto que se "revela", inclinación con el dedo, flip 3D con resorte, tinta al voltear |
 | 4 | Neon / Cosmic | Oscuro, Unbounded + Space Grotesk | Encendido de neón, estrellas en 3 capas con paralaje (giroscopio), estrella fugaz |
 | 5 | Playful Heart | Vibrante, Fredoka | Mantener presionado: anillo de carga, temblor, explosión de partículas con resortes, vibración |
+| 6 | Vesper Night | Negro puro, Inter + Instrument Serif, video de fondo | Entrada escalonada, pills de metal líquido, botones liquid-glass, "Te amo" y "Mandar un beso" lanzan corazones, contador de besos, compartir |
 
 Todas respetan `prefers-reduced-motion`, las safe-areas del iPhone y usan `100dvh`.

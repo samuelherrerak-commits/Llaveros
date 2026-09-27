@@ -62,6 +62,7 @@ export default function VesperNight({ data }) {
   const [run, setRun] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
   const [videoReady, setVideoReady] = useState(false)
+  const videoRef = useRef(null)
   const isDesktop = useMediaQuery('(min-width: 901px)')
   const { hearts, burst, removeHeart } = useHearts()
   const kisses = useRef(0)
@@ -126,14 +127,30 @@ export default function VesperNight({ data }) {
 
   useEffect(() => () => clearTimeout(toastTimer.current), [])
 
+  // Algunos navegadores ignoran autoPlay: lo pedimos explícitamente y, si lo
+  // rechazan, reintentamos con el primer toque del usuario.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    const tryPlay = () => video.play?.().catch(() => {})
+    tryPlay()
+    window.addEventListener('pointerdown', tryPlay, { once: true })
+    return () => window.removeEventListener('pointerdown', tryPlay)
+  }, [])
+
   const actions = { sendKiss, loveYou, replay, share, closeMenu: () => setMenuOpen(false) }
 
   return (
     <div className={`vn${menuOpen ? ' menu-open' : ''}`} style={{ background: '#000', color: '#fff' }}>
       <div className="vn-grain" aria-hidden />
 
-      {/* Video de fondo: 100% opacidad, sin overlay. Aparece al tener el primer frame. */}
+      {/* Respaldo: noche animada debajo del video. Se ve si el video tarda,
+          falla o el navegador bloquea el autoplay (p. ej. iOS en Ahorro de batería). */}
+      <NightFallback />
+
+      {/* Video de fondo: 100% opacidad, sin overlay. Tapa el respaldo en cuanto reproduce. */}
       <motion.video
+        ref={videoRef}
         className="vn-video"
         src={data.extra.video || DEFAULT_VIDEO}
         autoPlay
@@ -142,7 +159,8 @@ export default function VesperNight({ data }) {
         playsInline
         preload="auto"
         aria-hidden
-        onLoadedData={() => setVideoReady(true)}
+        onPlaying={() => setVideoReady(true)}
+        onError={() => setVideoReady(false)}
         initial={{ opacity: 0, scale: 1.06 }}
         animate={videoReady ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.06 }}
         transition={{ duration: 1.6, ease: EASE }}
@@ -372,6 +390,44 @@ function firstStat(extra) {
     return `${days.toLocaleString('es')} ${days === 1 ? 'día' : 'días'} juntos`
   }
   return 'Dos corazones, un mismo camino'
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fondo de respaldo                                                  */
+/* ------------------------------------------------------------------ */
+
+const STARS = Array.from({ length: 28 }, (_, i) => ({
+  id: i,
+  left: (i * 37.3) % 100,
+  top: (i * 53.7) % 62,
+  size: i % 5 === 0 ? 2 : 1,
+  delay: (i % 7) * 0.6,
+}))
+
+function NightFallback() {
+  return (
+    <div className="vn-fallback" aria-hidden>
+      <motion.div
+        className="vn-fallback-glow vn-fallback-glow--rose"
+        animate={{ x: ['-8%', '6%', '-8%'], scale: [1, 1.12, 1] }}
+        transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="vn-fallback-glow vn-fallback-glow--violet"
+        animate={{ x: ['6%', '-6%', '6%'], scale: [1.1, 1, 1.1] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {STARS.map((s) => (
+        <motion.span
+          key={s.id}
+          className="vn-star"
+          style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size }}
+          animate={{ opacity: [0.15, 0.9, 0.15] }}
+          transition={{ duration: 3.2, repeat: Infinity, delay: s.delay, ease: 'easeInOut' }}
+        />
+      ))}
+    </div>
+  )
 }
 
 /* ------------------------------------------------------------------ */

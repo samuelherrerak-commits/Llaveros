@@ -77,6 +77,48 @@
   pointer-events: none;
 }
 
+/* Noche de respaldo (queda debajo del video) */
+.vn-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% 110%, #2a0a1a 0%, rgba(42, 10, 26, 0) 60%),
+    linear-gradient(180deg, #05030a 0%, #0a0612 55%, #12060d 100%);
+}
+
+.vn-fallback-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+}
+
+.vn-fallback-glow--rose {
+  left: 10%;
+  bottom: -18%;
+  width: 80vmax;
+  height: 50vmax;
+  background: radial-gradient(closest-side, rgba(255, 92, 138, 0.45), transparent);
+}
+
+.vn-fallback-glow--violet {
+  right: -20%;
+  top: -15%;
+  width: 70vmax;
+  height: 55vmax;
+  background: radial-gradient(closest-side, rgba(124, 92, 255, 0.28), transparent);
+}
+
+.vn-star {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
 .vn-grain {
   position: fixed;
   inset: 0;

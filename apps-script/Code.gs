@@ -173,7 +173,7 @@ function normalizeSlug_(value) {
 
 function toTemplateId_(value) {
   var n = parseInt(value, 10);
-  return n >= 1 && n <= 5 ? n : 1;
+  return n >= 1 && n <= 6 ? n : 1;
 }
 
 /**
@@ -240,6 +240,7 @@ function setupSheet() {
   sheet.appendRow(['nuestro-verano', 3, 'Leo', 'Valen', 'Este fue el día en que supe que eras tú.', '{"photo":"https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=900","date":"14 · 02 · 2025"}']);
   sheet.appendRow(['baby-galaxia', 4, 'Kevin', 'Dani', 'En un universo de millones, siempre te elijo a ti.', '{"color":"#a855f7"}']);
   sheet.appendRow(['boom-amor', 5, 'Pau', 'Nico', '¡Te quiero más que ayer y menos que mañana!', '']);
+  sheet.appendRow(['noche-vesper', 6, 'Diego', 'Valeria', 'Eres la calma de mis noches y la razón de cada amanecer. Gracias por elegirme, todos los días.', '{"since":"2023-02-14"}']);
   sheet.setFrozenRows(1);
 }
 

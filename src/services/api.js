@@ -143,7 +143,7 @@ function normalizeRecord(raw = {}) {
   const templateId = Number.parseInt(raw.template_id, 10)
   return {
     slug: raw.slug ?? '',
-    templateId: templateId >= 1 && templateId <= 5 ? templateId : 1,
+    templateId: templateId >= 1 && templateId <= 6 ? templateId : 1,
     sender: String(raw.sender ?? '').trim(),
     receiver: String(raw.receiver ?? '').trim(),
     message: String(raw.message ?? '').trim(),

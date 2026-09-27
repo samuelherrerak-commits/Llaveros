@@ -11,6 +11,7 @@ const loaders = {
   3: () => import('./PolaroidMemory.jsx'),
   4: () => import('./NeonCosmic.jsx'),
   5: () => import('./PlayfulHeart.jsx'),
+  6: () => import('./VesperNight.jsx'),
 }
 
 export const TEMPLATES = {
@@ -19,6 +20,7 @@ export const TEMPLATES = {
   3: { name: 'Polaroid Memory', theme: '#ebe6de', Component: lazy(loaders[3]) },
   4: { name: 'Neon Cosmic', theme: '#05010d', Component: lazy(loaders[4]) },
   5: { name: 'Playful Heart', theme: '#ff3d7f', Component: lazy(loaders[5]) },
+  6: { name: 'Vesper Night', theme: '#000000', Component: lazy(loaders[6]) },
 }
 
 export function getTemplate(id) {
